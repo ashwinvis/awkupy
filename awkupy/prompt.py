@@ -13,10 +13,25 @@ from .awk import Awk
 
 class IAwk(cmd.Cmd):
     intro = 'Welcome to the IAwk shell. Type help or ? to list commands.\n'
-    prompt = '\033[1;32m{0}\033[39m'.format('iawk > ')
+    cmd_count = 0
+
+    @classmethod
+    def _update_prompt(cls):
+        cls.cmd_count += 1
+        cls.prompt = '\033[1;32m{0} [{1}]: \033[39m'.format('iawk', cls.cmd_count)
 
     def preloop(self):
         self.do_reset()
+        self._update_prompt()
+
+    def precmd(self, line):
+        if line:
+            self._update_prompt()
+
+        return line
+
+    def emptyline(self):
+        pass
 
     def do_reset(self, arg=None):
         """Reset the current IAwk session."""
@@ -31,7 +46,7 @@ class IAwk(cmd.Cmd):
         Use `run <script_file.awk>` to execute an awk script.
 
         """
-        if(arg):
+        if arg:
             self.awk.opts.f = arg
 
         self.awk()
@@ -42,17 +57,14 @@ class IAwk(cmd.Cmd):
 
         """
         argv = args.split()
-        if len(argv) == 1:
-            self.awk.PROGRAM = argv[0]
-        elif argv[0] in ['BEGIN', 'PROGRAM', 'END']:
-            self.awk.__dict__[argv[0]] = ' '.join(argv[1])
+        if argv[0] in ['BEGIN', 'PROGRAM', 'END']:
+            self.awk.__dict__[argv[0]] = ' '.join(argv[1:])
         else:
             self.awk.PROGRAM = args
 
-    def do_show(self, arg='code'):
+    def do_show(self, arg):
         """Display equivalent AWK code `show code`/ command `show command`."""
         if not arg:
-            self.awk.show_command()
             self.awk.show_code()
 
         if arg == 'command':

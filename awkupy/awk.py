@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 
 class Awk(object):
@@ -16,6 +17,10 @@ class Awk(object):
         args = self._command()
 
         if self.INPUT or stdin:
+            if not os.path.exists(self.INPUT) and not stdin:
+                echo = subprocess.Popen(['echo', self.INPUT], stdout=subprocess.PIPE)
+                stdin = echo.stdout
+
             return subprocess.Popen(args, stdin=stdin, stdout=stdout)
         else:
             print('Cannot awk without input')
@@ -34,7 +39,7 @@ class Awk(object):
         if not self.opts.f:
             args.append(self._generate_code())
 
-        if self.INPUT:
+        if self.INPUT and os.path.exists(self.INPUT):
             args.append(self.INPUT)
 
         return args
