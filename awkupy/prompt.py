@@ -1,37 +1,13 @@
 from __future__ import print_function
 
-import cmd
-import os
-from sys import exit
-try:
-    from os import system as call
-except ImportError:
-    from subprocess import call
-
 from .awk import Awk
+from .base import BasePrompt
 
 
-class IAwk(cmd.Cmd):
-    intro = 'Welcome to the IAwk shell. Type help or ? to list commands.\n'
-    cmd_count = 0
-
-    @classmethod
-    def _update_prompt(cls):
-        cls.cmd_count += 1
-        cls.prompt = '\033[1;32m{0} [{1}]: \033[39m'.format('iawk', cls.cmd_count)
-
-    def preloop(self):
-        self.do_reset()
-        self._update_prompt()
-
-    def precmd(self, line):
-        if line:
-            self._update_prompt()
-
-        return line
-
-    def emptyline(self):
-        pass
+class IAwk(BasePrompt):
+    intro = ('Welcome to the IAwk shell. Type help or ? to list commands.\n'
+             'Prefix ! to run system commands\n')
+    cmd_name = 'iawk'
 
     def do_reset(self, arg=None):
         """Reset the current IAwk session."""
@@ -42,7 +18,7 @@ class IAwk(cmd.Cmd):
         self.awk.INPUT = arg
 
     def do_run(self, arg=None):
-        """Execute AWK command set with BEGIN, PROGRAM, END code blocks with `run`.
+        """Execute AWK command set with BEGIN, ACTION, END code blocks with `run`.
         Use `run <script_file.awk>` to execute an awk script.
 
         """
@@ -52,15 +28,16 @@ class IAwk(cmd.Cmd):
         self.awk()
 
     def do_set(self, args):
-        """Set BEGIN, PROGRAM, and END code blocks in AWK language.
-        Use `show code` to verify.
+        """Set BEGIN, PATTERN, ACTION, and END code blocks in AWK language. If
+        unspecified sets ACTION with whatever follows. Use `show code` to
+        verify.
 
         """
         argv = args.split()
-        if argv[0] in ['BEGIN', 'PROGRAM', 'END']:
-            self.awk.__dict__[argv[0]] = ' '.join(argv[1:])
+        if argv[0].upper() in ['BEGIN', 'PATTERN', 'ACTION', 'END']:
+            self.awk.__dict__[argv[0].upper()] = ' '.join(argv[1:])
         else:
-            self.awk.PROGRAM = args
+            self.awk.ACTION = args
 
     def do_show(self, arg):
         """Display equivalent AWK code `show code`/ command `show command`."""
@@ -71,39 +48,3 @@ class IAwk(cmd.Cmd):
             self.awk.show_command()
         elif arg == 'code':
             self.awk.show_code()
-
-    def do_shell(self, arg):
-        """Execute shell commands."""
-        call(arg)
-
-    def do_ls(self, arg):
-        if not arg:
-            arg = '.'
-
-        path = self._parse_path(arg)
-        if path:
-            print(' '.join(os.listdir(path)))
-
-    def do_cd(self, arg):
-        path = self._parse_path(arg)
-        if path:
-            os.chdir(path)
-
-    def _parse_path(self, path):
-        path = os.path.expandvars(path)
-        path = os.path.expanduser(path)
-        if os.path.exists(path):
-            return path
-        else:
-            print('File/directory not found: ', path)
-            return False
-
-    def do_exit(self, arg):
-        exit()
-
-    def help_exit(self):
-        print("Terminates the current IAwk session.")
-        print("You can also use the Ctrl-D shortcut.")
-
-    do_EOF = do_exit
-    help_EOF = help_exit

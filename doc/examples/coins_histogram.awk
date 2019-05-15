@@ -1,5 +1,5 @@
 #!/usr/bin/awk -f
-{
+/gold/ {
   country[$4]++
 }
 

@@ -8,7 +8,8 @@ class Awk(object):
     def __init__(self):
         self.opts = _Options()
         self.BEGIN = None
-        self.PROGRAM = None
+        self.PATTERN = None
+        self.ACTION = None
         self.END = None
         self.INPUT = None
         self.OUTPUT = None
@@ -39,7 +40,7 @@ class Awk(object):
         if not self.opts.f:
             args.append(self._generate_code())
 
-        if self.INPUT and os.path.exists(self.INPUT):
+        if self.INPUT and os.path.isfile(self.INPUT):
             args.append(self.INPUT)
 
         return args
@@ -49,8 +50,14 @@ class Awk(object):
         if self.BEGIN:
             code += 'BEGIN' + self._bracket(self.BEGIN)
 
-        if self.PROGRAM:
-            code += '\n' + self._bracket(self.PROGRAM)
+        inner_code = ''
+        if self.PATTERN:
+            inner_code += self.PATTERN
+
+        if self.ACTION:
+            inner_code += ' ' + self._bracket(self.ACTION)
+
+        code += inner_code
 
         if self.END:
             code += '\nEND' + self._bracket(self.END)
@@ -58,13 +65,13 @@ class Awk(object):
         return code
 
     def _bracket(self, code):
-        bcode = '{\n'
+        bcode = '{'
         if isinstance(code, list):
-            bcode += '; '.join(list)
+            bcode += '; '.join(code)
         elif isinstance(code, str):
             bcode += code
 
-        return bcode + '\n}'
+        return bcode + '}\n'
 
 
 class _Options(object):
