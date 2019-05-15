@@ -11,7 +11,7 @@ No reinventing the AWK wheel, and thus, no compromise in speed (I guess).
 Installation
 ------------
 ```bash
-make install
+pip install https://github.com/ashwinvis/awkupy/archive/0.0.2a0.tar.gz
 ```
 
 Features
