@@ -38,7 +38,7 @@ iawk [4]: set pattern /gold/
 iawk [5]: set action print $0
 iawk [6]: input coins.txt
 iawk [7]: show
-#/usr/bin/awk -f
+#!/usr/bin/awk -f
 /gold/ {print $0}
 
 iawk [8]: run
