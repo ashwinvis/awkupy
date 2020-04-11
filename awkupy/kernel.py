@@ -6,7 +6,7 @@ $ jupyter console --existing
 """
 import sys
 from contextlib import redirect_stderr
-from ipykernel.kernelbase import Kernel
+from metakernel import ProcessMetaKernel as Kernel
 
 from . import IAwk, __version__
 
@@ -23,64 +23,32 @@ class IAwkKernel(Kernel):
     }
     banner = "IAwk version: " + __version__
 
-    # Internals
-    cmd = IAwk()
-    cmd.use_rawinput = False
-    cmd.preloop()
+    _awk_engine = None
 
+    @property
+    def engine(self):
+        if not self._awk_engine:
+            self._awk_engine = IAwk(
+                #  error_handler=self.Error,
+                stdin=self.raw_input,
+                stdout=self.Print,
+                #  stream_handler=self.Print,
+                #  cli_options=self.cli_options,
+                #  inline_toolkit=self.inline_toolkit,
+                #  logger=self.log,
+            )
+            #  # Internals
+            #  cmd = IAwk()
+            #  #  cmd.use_rawinput = False
+            #  cmd.preloop()
+            self._awk_engine.preloop()
 
+        return self._awk_engine
 
-    def do_execute(
-        self,
-        code,
-        silent,
-        store_history=True,
-        user_expressions=None,
-        allow_stdin=False,
+    def do_execute_direct(
+        self, code, silent=False,
     ):
-        if not silent:
-            try:
-                payload = []
-                if code.strip() in ("exit", "quit"):
-                    result = ""
-                    payload.append(
-                        {
-                            "source": "ask_exit",
-                            # whether the kernel should be left running, only closing
-                            # the client
-                            "keepkernel": False,
-                        }
-                    )
-                else:
-                    result = self.cmd.onecmd(code)
-
-                status = "ok"
-                stream_content = {
-                    "name": 'stdout',
-                    "text": result if result else "",
-                }
-
-                self.send_response(self.iopub_socket, "stream", stream_content)
-
-                return {
-                    "status": status,
-                    # The base class increments the execution count
-                    "execution_count": self.execution_count,
-                    "payload": payload,
-                    "user_expressions": {},
-                }
-            except IOError as e:
-                status = "error"
-
-                return {
-                    "status": status,
-                    "execution_count": self.execution_count,
-                    "ename": e.__class__.__name__,
-                    "traceback": str(e),
-                }
-
+        return self.engine.onecmd(code)
 
 if __name__ == "__main__":
-    from ipykernel.kernelapp import IPKernelApp
-
-    IPKernelApp.launch_instance(kernel_class=IAwkKernel)
+    IAwkKernel.run_as_main()
