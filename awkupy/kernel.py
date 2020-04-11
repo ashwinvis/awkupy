@@ -57,7 +57,7 @@ class IAwkKernel(Kernel):
                 status = "ok"
                 stream_content = {
                     "name": 'stdout',
-                    "text": if result else "",
+                    "text": result if result else "",
                 }
 
                 self.send_response(self.iopub_socket, "stream", stream_content)
