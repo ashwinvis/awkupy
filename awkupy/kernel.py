@@ -21,12 +21,24 @@ class IAwkKernel(Kernel):
         "mimetype": "application/x-awk",
         "file_extension": ".awk",
     }
-    banner = "IAwk version: " + __version__
 
     _awk_engine = None
+    _banner = None
+    _stdout = None
+
+    @property
+    def banner(self):
+        if self._banner is None:
+            awk_version = subprocess.check_output(["awk", "--version"]).decode(
+                "utf-8"
+            )
+            self._banner = "\n".join(awk_version.splitlines()[:2])
+            self._banner += "\nIAwk version: " + __version__
+        return self._banner
 
     @property
     def engine(self):
+        """Lazy load and do not discard IAwk instance."""
         if not self._awk_engine:
             self._awk_engine = IAwk(
                 #  error_handler=self.Error,
