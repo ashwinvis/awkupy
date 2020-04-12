@@ -19,5 +19,6 @@ setup(
     packages=find_packages(exclude=['doc', 'tests']),
     entry_points={
         "console_scripts": "iawk=iawk.__main__:main",
-    }
+    },
+    install_requires=["ipython"],
 )
