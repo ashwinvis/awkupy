@@ -5,10 +5,26 @@ $ jupyter console --existing
 
 """
 import sys
-from contextlib import redirect_stderr
-from metakernel import ProcessMetaKernel as Kernel
+import subprocess
+from io import StringIO
+from pathlib import Path
+from metakernel import ProcessMetaKernel as Kernel, REPLWrapper, pexpect, u
+#  from metakernel.process_metakernel import BashKernel
 
 from . import IAwk, __version__
+
+
+class AwkREPLWrapper(REPLWrapper):
+
+    #  def run_command(
+    #      self,
+    #      command,
+    #      timeout=None,
+    #      stream_handler=None,
+    #      line_handler=None,
+    #      stdin_handler=None,
+    #  ):
+    pass
 
 
 class IAwkKernel(Kernel):
@@ -17,14 +33,26 @@ class IAwkKernel(Kernel):
     language = "awk"
     language_version = "5.0"
     language_info = {
-        "name": "Any text",
-        "mimetype": "application/x-awk",
+        "language": language,
+        "mimetype": "text/x-awk",
         "file_extension": ".awk",
+    }
+
+    kernel_json = {
+        "argv": [
+            sys.executable,
+            "-m",
+            "awkupy.kernel",
+            "-f",
+            "{connection_file}",
+        ],
+        "display_name": "IAwk",
+        "language": "awk",
+        "name": "iawk",
     }
 
     _awk_engine = None
     _banner = None
-    _stdout = None
 
     @property
     def banner(self):
@@ -36,31 +64,61 @@ class IAwkKernel(Kernel):
             self._banner += "\nIAwk version: " + __version__
         return self._banner
 
-    @property
-    def engine(self):
-        """Lazy load and do not discard IAwk instance."""
-        if not self._awk_engine:
-            self._awk_engine = IAwk(
-                #  error_handler=self.Error,
-                stdin=self.raw_input,
-                stdout=self.Print,
-                #  stream_handler=self.Print,
-                #  cli_options=self.cli_options,
-                #  inline_toolkit=self.inline_toolkit,
-                #  logger=self.log,
-            )
-            #  # Internals
-            #  cmd = IAwk()
-            #  #  cmd.use_rawinput = False
-            #  cmd.preloop()
-            self._awk_engine.preloop()
-
-        return self._awk_engine
-
     def do_execute_direct(
         self, code, silent=False,
     ):
-        return self.engine.onecmd(code)
+        try:
+            last_arg = code.split()[-1]
+            if Path(last_arg).is_file():
+                file = last_arg
+                code = code.rstrip(last_arg)
+                print('last_arg: ', last_arg)
+                print('code: ', code, type(code), type(last_arg), code.rstrip(last_arg.strip()))
+                print('file: ', file)
+            else:
+                file = None
+
+            code = '/def/'
+            text = """
+def this
+def that
+duf tho
+            """
+            if not self.wrapper:
+                self.wrapper = self.makeWrapper(code)
+
+            #  result = super().do_execute_direct(text, silent)
+            result = self.wrapper.run_command(text)
+            #  self.Print(stdout)
+            return result #  if (result and result.output) else None
+        except Exception as exc:
+            self.Error(exc)
+
+    def makeWrapper(self, code, file=None):
+        if pexpect.which("awk"):
+            program = "awk"
+        else:
+            raise OSError("awk not found.")
+
+        # We don't want help commands getting stuck,
+        # use a non interactive PAGER
+        #  if file:
+        #      command = f"{program} --source '{code}' {file}"
+        #  else:
+        #      command = f"{program} --source '{code}'"
+
+        #  print(command)
+        #  child = pexpect.spawn(program, ['--source', code], echo=False, encoding='utf-8')
+        d = dict(cmd_or_spawn=child, prompt_regex=u(""), prompt_change_cmd=None)
+        wrapper = AwkREPLWrapper(**d)
+        # No sleeping before sending commands to gnuplot
+        wrapper.child.delaybeforesend = 0
+        return wrapper
+
 
 if __name__ == "__main__":
     IAwkKernel.run_as_main()
+    #  BashKernel.run_as_main()
+
+    #  from IPython.kernel.zmq.kernelapp import IPKernelApp
+    #  IPKernelApp.launch_instance(kernel_class=IAwkKernel)
