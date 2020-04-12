@@ -1,5 +1,10 @@
 import subprocess
 import os
+import fileinput
+
+
+class AwkError(IOError):
+    pass
 
 
 class Awk(object):
@@ -7,88 +12,111 @@ class Awk(object):
 
     def __init__(self):
         self.opts = _Options()
-        self.BEGIN = None
-        self.PATTERN = None
-        self.ACTION = None
-        self.END = None
+        del self.code
         self.INPUT = None
-        self.OUTPUT = None
 
     def __call__(self, stdin=None, stdout=None):
-        args = self._command()
+        cmd = self.command
 
-        if self.INPUT or stdin:
-            if not os.path.exists(self.INPUT) and not stdin:
-                echo = subprocess.Popen(['echo', self.INPUT], stdout=subprocess.PIPE)
-                stdin = echo.stdout
+        if not stdin:
+            if os.path.isfile(self.INPUT):
+                with open(self.INPUT, "rb") as fp:
+                    text = fp.read()
+            elif self.INPUT:
+                text = (
+                    self.INPUT.encode()
+                    if isinstance(self.INPUT, str)
+                    else self.INPUT
+                )
+            else:
+                raise AwkError("Cannot awk without input / stdin")
 
-            return subprocess.Popen(args, stdin=stdin, stdout=stdout)
+            proc = subprocess.run(cmd, input=text, stdout=stdout)
         else:
-            print('Cannot awk without input')
+            proc = subprocess.run(cmd, stdin=stdin, stdout=stdout)
 
-    def show_command(self):
-        args = self._command()
-        print(' '.join(args))
+    def __repr__(self):
+        cmd = self.command
+        return " ".join(cmd)
 
-    def show_code(self):
-        print('#!/usr/bin/awk -f')
-        print(self._generate_code())
-
-    def _command(self):
-        args = ['awk']
-        args = self.opts.get(args)
+    @property
+    def command(self):
+        cmd = ["awk"]
+        cmd.extend(self.opts.args)
         if not self.opts.f:
-            args.append(self._generate_code())
+            cmd.append(self.code)
 
         if self.INPUT and os.path.isfile(self.INPUT):
-            args.append(self.INPUT)
+            cmd.append(self.INPUT)
 
-        return args
+        return cmd
 
-    def _generate_code(self):
-        code = ''
+    @property
+    def code(self):
+        if not (self.BEGIN or self.PATTERN or self.ACTION or self.END):
+            return self._code
+
+        code = ""
         if self.BEGIN:
-            code += 'BEGIN' + self._bracket(self.BEGIN)
+            code += "BEGIN" + self._bracket(self.BEGIN)
 
-        inner_code = ''
+        inner_code = ""
         if self.PATTERN:
             inner_code += self.PATTERN
 
         if self.ACTION:
-            inner_code += ' ' + self._bracket(self.ACTION)
+            inner_code += " " + self._bracket(self.ACTION)
 
         code += inner_code
 
         if self.END:
-            code += '\nEND' + self._bracket(self.END)
+            code += "\nEND" + self._bracket(self.END)
 
         return code
 
+    @code.setter
+    def code(self, source_code):
+        del self.code
+        self._code = source_code
+
+    @code.deleter
+    def code(self):
+        self.BEGIN = None
+        self.PATTERN = None
+        self.ACTION = None
+        self.END = None
+
+        self._code = ""
+
     def _bracket(self, code):
-        bcode = '{'
+        bcode = "{"
         if isinstance(code, list):
-            bcode += '; '.join(code)
+            bcode += "; ".join(code)
         elif isinstance(code, str):
             bcode += code
 
-        return bcode + '}\n'
+        return bcode + "}\n"
 
 
 class _Options(object):
-
     def __init__(self):
         self.f = None
         self.F = None
         self.v = []
 
-    def get(self, args=[]):
+    def __repr__(self):
+        return " ".join(self.args)
+
+    @property
+    def args(self):
+        args = []
         if self.F:
-            args.extend(['-F', self.F])
+            args.extend(["-F", self.F])
 
         if self.v:
-            args.extend(['-v', self.v])
+            args.extend(["-v", self.v])
 
         if self.f:
-            args.extend(['-f', self.f])
+            args.extend(["-f", self.f])
 
         return args

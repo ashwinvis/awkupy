@@ -6,6 +6,6 @@ awk.ACTION = 'country[$4]++'
 awk.END = 'for (i in country) print "Country: " i," count: ", country[i]'
 awk.INPUT = 'coins.txt'
 
-awk.show_code()
+print(awk.code)
 
 awk()
