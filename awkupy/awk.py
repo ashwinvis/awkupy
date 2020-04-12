@@ -15,9 +15,8 @@ class Awk(object):
         del self.code
         self.INPUT = None
 
-    def __call__(self, stdin=None, stdout=None):
+    def __call__(self, stdin=None, **kwargs):
         cmd = self.command
-
         if not stdin:
             if os.path.isfile(self.INPUT):
                 with open(self.INPUT, "rb") as fp:
@@ -31,13 +30,18 @@ class Awk(object):
             else:
                 raise AwkError("Cannot awk without input / stdin")
 
-            proc = subprocess.run(cmd, input=text, stdout=stdout)
+            proc = subprocess.run(cmd, input=text,  **kwargs)
         else:
-            proc = subprocess.run(cmd, stdin=stdin, stdout=stdout)
+            proc = subprocess.run(cmd, stdin=stdin, **kwargs)
+
+        return proc
 
     def __repr__(self):
         cmd = self.command
         return " ".join(cmd)
+
+    def check_output(self, stdin=None):
+        return self.__call__(stdin, stdout=subprocess.PIPE, check=True).stdout
 
     @property
     def command(self):
