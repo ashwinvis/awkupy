@@ -2,6 +2,7 @@ awkupy
 ======
 AWK meets Python: bindings and interactive shell for AWK
 --------------------------------------------------------
+
 [![alpha](https://img.shields.io/badge/awkupy-v0.0.2a0-green.svg)](https://github.com/ashwinvis/awkupy/releases/tag/0.0.2a0)
 [![LICENSE](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
 
@@ -10,12 +11,14 @@ No reinventing the AWK wheel, and thus, no compromise in speed (I guess).
 
 Installation
 ------------
+
 ```bash
 pip install https://github.com/ashwinvis/awkupy/archive/0.0.2a0.tar.gz
 ```
 
 Features
 --------
+
 - [x] Python class to call AWK via subprocess - see an [example](doc/examples/coins_histogram.py).
 - [x] IAwk: interactive AWK prompt modelled after IPython:
 

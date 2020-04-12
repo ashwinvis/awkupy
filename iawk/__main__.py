@@ -3,5 +3,9 @@
 from awkupy import IAwk
 
 
-if __name__ == '__main__':
+def main():
     IAwk().cmdloop()
+
+
+if __name__ == '__main__':
+    main()

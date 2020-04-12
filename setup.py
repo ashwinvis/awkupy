@@ -16,6 +16,8 @@ setup(
     platforms=['any'],
     author='Ashwin Vishnu',
     author_email='avmo@kth.se',
-    packages=find_packages(exclude=['doc', 'bin']),
-    scripts=['bin/iawk'],
+    packages=find_packages(exclude=['doc', 'tests']),
+    entry_points={
+        "console_scripts": "iawk=iawk.__main__:main",
+    }
 )
