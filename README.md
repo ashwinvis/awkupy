@@ -20,7 +20,9 @@ Features
 --------
 
 - [x] Python class to call AWK via subprocess - see an [example](doc/examples/coins_histogram.py).
-- [x] IAwk: interactive AWK prompt modelled after IPython:
+- [x] IPython / Jupyter magics: `%awk` and `%%awk` by loading extension `iawk`.
+      See [example](doc/examples/coins_histogram.ipynb)
+- [x] IAwk: interactive AWK prompt modelled after IPython.
 
 ```awk
 ❯❯❯ iawk                                                                                                                                        (awkupy)
