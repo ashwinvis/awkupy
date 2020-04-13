@@ -87,3 +87,9 @@ iawk [9]:    gold     1    1986  USA                 American Eagle
 
 iawk [9]: exit
 ```
+
+References
+----------
+
+- [To awk or not to ...](https://sites.google.com/site/toawkornot/home) -
+  excellent tutorial on Awk
