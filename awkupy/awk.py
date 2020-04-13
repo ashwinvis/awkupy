@@ -1,5 +1,7 @@
-import subprocess
 import os
+import subprocess
+from dataclasses import dataclass, field
+from typing import Union, List
 
 
 class AwkError(IOError):
@@ -10,7 +12,7 @@ class Awk(object):
     """A subprocess interface for AWK."""
 
     def __init__(self):
-        self.opts = _Options()
+        self.opts = Options()
         del self.code
         self.INPUT = ""
 
@@ -45,7 +47,7 @@ class Awk(object):
     @property
     def command(self):
         cmd = ["awk"]
-        cmd.extend(self.opts.args)
+        cmd.extend(self.opts.as_list())
         if not self.opts.f:
             cmd.append(self.code)
 
@@ -101,25 +103,20 @@ class Awk(object):
         return bcode + "}\n"
 
 
-class _Options(object):
-    def __init__(self):
-        self.f = None
-        self.F = None
-        self.v = []
+@dataclass
+class Options(object):
+    f: str = ""
+    F: str = ""
+    o: Union[str, bool] = ""
+    v: List[str] = field(default_factory=list)
 
-    def __repr__(self):
-        return " ".join(self.args)
-
-    @property
-    def args(self):
+    def as_list(self):
         args = []
-        if self.F:
-            args.extend(["-F", self.F])
-
-        if self.v:
-            args.extend(["-v", self.v])
-
-        if self.f:
-            args.extend(["-f", self.f])
+        for key in self.__dataclass_fields__:
+            value = getattr(self, key)
+            if isinstance(value, str) and value:
+                args.extend([f"-{key}", value])
+            elif value:
+                args.append(f"-{key}")
 
         return args
