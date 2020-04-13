@@ -2,7 +2,7 @@ awkupy and IAwk
 ===============
 *AWK meets Python: API, CLI and magics*
 
-[![alpha](https://img.shields.io/badge/awkupy-v0.0.2a0-green.svg)](https://github.com/ashwinvis/awkupy/releases/tag/0.0.2a0)
+[![PyPI](https://img.shields.io/pypi/v/awkupy)](https://pypi.org/project/awkupy/)
 [![LICENSE](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
 
 A simple subprocess based Pythonic interface for Awk, which powers a
