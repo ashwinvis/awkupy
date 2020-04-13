@@ -13,7 +13,7 @@ class Awk(object):
     def __init__(self):
         self.opts = _Options()
         del self.code
-        self.INPUT = None
+        self.INPUT = ""
 
     def __call__(self, stdin=None, **kwargs):
         cmd = self.command
