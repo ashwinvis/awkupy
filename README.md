@@ -25,7 +25,7 @@ Features
       programming with Awk. See [example](doc/examples/coins_histogram.ipynb)
       and the [tutorial](doc/examples/tutorial.ipynb) for more details.
 
-```ipython
+```awk
 In [1]: %load_ext iawk
 
 In [2]: cd doc/examples/
