@@ -115,7 +115,7 @@ class Options(object):
         for key in self.__dataclass_fields__:
             value = getattr(self, key)
             if isinstance(value, str) and value:
-                args.extend([f"-{key}", value])
+                args.extend([f"-{key}{value}"])
             elif value:
                 args.append(f"-{key}")
 

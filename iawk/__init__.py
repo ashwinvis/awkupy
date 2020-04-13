@@ -32,11 +32,27 @@ class AwkMagics(Magics):
     @needs_local_scope
     @line_cell_magic
     @magic_arguments()
-    @argument("-f", "--file", default=None, help="external awk program")
-    @argument("-F", "--field-separator", default=None, help="separate column using a string")
-    @argument("-p", "--print-output", action="store_true", help="print output to stdout")
-    @argument("-s", "--save-as", default=None, help="save output to a file")
     @argument("-d", "--debug", action="store_true", help="debug awk code")
+    @argument("-f", "--file", default=None, help="external awk program")
+    @argument(
+        "-F",
+        "--field-separator",
+        default=None,
+        help="separate column using a string",
+    )
+    @argument(
+        "-o",
+        "--pretty-print",
+        nargs="?",
+        const=True,
+        default=False,
+        help=(
+            "pretty print program to a file; if no file is mentioned "
+            "the program is saved to awkprof.out"
+        ),
+    )
+    @argument("-s", "--save-as", default=None, help="save output to a file")
+    @argument("-u", "--stdout", action="store_true", help="print to stdout")
     @argument(
         "-v",
         "--variable",
@@ -63,7 +79,6 @@ class AwkMagics(Magics):
         args = parse_argstring(self.awk, line)
         args.source = args.source.strip("'")
 
-        #  api = self.api
         api = Awk()
 
         if args.file:
@@ -80,17 +95,37 @@ class AwkMagics(Magics):
         api.code = args.source or cell
 
         if args.debug:
-            print("\n\r".join(["Code:", api.code, "Input:", str(api.INPUT)]))
+            # TODO: use
+            print(
+                "\n  ".join(
+                    [
+                        "\r- Code:",
+                        api.code,
+                        "\n\r- Input:",
+                        *str(api.INPUT).splitlines(),
+                        "\n\r- Output:",
+                        "stdout" if args.stdout else args.save_as,
+                        "\r",
+                    ]
+                )
+            )
 
-        if args.print_output:
-            return api()
-        else:
-            output = api.check_output().decode()
-            if args.save_as:
-                with open(args.save_as, "w") as fp:
-                    fp.write(output)
+        if args.pretty_print:
+            api.opts.o = args.pretty_print
+
+        if args.stdout:
+            if self.shell.__class__.__name__ == "ZMQInteractiveShell":
+                # NOTE: we need this, otherwise the stdout of the terminal
+                # would be used!
+                # https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python/
+                print(api.check_output().decode())
             else:
-                return output
+                api()
+        elif args.save_as:
+            with open(args.save_as, "wb") as fp:
+                return api(stdout=fp)
+        else:
+            return api.check_output().decode()
 
 
 def load_ipython_extension(ipython):
