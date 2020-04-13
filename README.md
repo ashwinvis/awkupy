@@ -1,7 +1,6 @@
 awkupy and IAwk
 ===============
-AWK meets Python: API, CLI and magics
--------------------------------------
+*AWK meets Python: API, CLI and magics*
 
 [![alpha](https://img.shields.io/badge/awkupy-v0.0.2a0-green.svg)](https://github.com/ashwinvis/awkupy/releases/tag/0.0.2a0)
 [![LICENSE](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
@@ -14,7 +13,7 @@ Installation
 ------------
 
 ```bash
-pip install https://github.com/ashwinvis/awkupy/archive/0.0.2a0.tar.gz
+pip install awkupy
 ```
 
 Features
@@ -31,7 +30,7 @@ In [1]: %load_ext iawk
 In [2]: cd doc/examples/
 /home/avmo/src/projects/awkupy/doc/examples
 
-In [3]: %%awk --print-output coins.txt
+In [3]: %%awk --stdout coins.txt
    ...: {
    ...:   country[$4]++
    ...: }
@@ -47,7 +46,6 @@ Country: Austria-Hungary  count:  1
 Country: Canada  count:  1
 Country: Switzerland  count:  1
 Country: RSA  count:  2
-Out[3]: CompletedProcess(args=['awk', '{\n  country[$4]++\n}\n\nEND {\n  for (i in country) print "Country: " i," count: ", country[i]\n}\n\n', 'coins.txt'], returncode=0)
 ```
 
 - [x] IAwk: interactive AWK prompt modelled after IPython.
