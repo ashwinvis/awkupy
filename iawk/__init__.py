@@ -22,7 +22,6 @@ class AwkMagics(Magics):
 
     def __init__(self, shell):
         super().__init__(shell)
-        #  self.api = Awk()
         self._input = ""
 
     @cell_magic
@@ -30,11 +29,6 @@ class AwkMagics(Magics):
         """Sets input text data."""
         self._input = cell
 
-    #  @line_magic
-    #  def awk_reset(self, line):
-    #      """Reset awk API state."""
-    #      del self.api.code
-    #
     @needs_local_scope
     @line_cell_magic
     @magic_arguments()

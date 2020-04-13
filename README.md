@@ -1,12 +1,13 @@
-awkupy
-======
-AWK meets Python: bindings and interactive shell for AWK
---------------------------------------------------------
+awkupy and IAwk
+===============
+AWK meets Python: API, CLI and magics
+-------------------------------------
 
 [![alpha](https://img.shields.io/badge/awkupy-v0.0.2a0-green.svg)](https://github.com/ashwinvis/awkupy/releases/tag/0.0.2a0)
 [![LICENSE](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
 
-No reinventing the AWK wheel, and thus, no compromise in speed (I guess).
+A simple subprocess based Pythonic interface for Awk wheel, which powers a
+command-line REPL and Jupyter magics.
 
 
 Installation
@@ -20,8 +21,35 @@ Features
 --------
 
 - [x] Python class to call AWK via subprocess - see an [example](doc/examples/coins_histogram.py).
-- [x] IPython / Jupyter magics: `%awk` and `%%awk` by loading extension `iawk`.
-      See [example](doc/examples/coins_histogram.ipynb)
+- [x] IPython / Jupyter magics: `%awk` and `%%awk`, enabling polyglot
+      programming with Awk. See [example](doc/examples/coins_histogram.ipynb)
+      and the [tutorial](doc/examples/tutorial.ipynb) for more details.
+
+```ipython
+In [1]: %load_ext iawk
+
+In [2]: cd doc/examples/
+/home/avmo/src/projects/awkupy/doc/examples
+
+In [3]: %%awk --print-output coins.txt
+   ...: {
+   ...:   country[$4]++
+   ...: }
+   ...:
+   ...: END {
+   ...:   for (i in country) print "Country: " i," count: ", country[i]
+   ...: }
+   ...:
+   ...:
+Country: USA  count:  7
+Country: PRC  count:  1
+Country: Austria-Hungary  count:  1
+Country: Canada  count:  1
+Country: Switzerland  count:  1
+Country: RSA  count:  2
+Out[3]: CompletedProcess(args=['awk', '{\n  country[$4]++\n}\n\nEND {\n  for (i in country) print "Country: " i," count: ", country[i]\n}\n\n', 'coins.txt'], returncode=0)
+```
+
 - [x] IAwk: interactive AWK prompt modelled after IPython.
 
 ```awk
