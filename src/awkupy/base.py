@@ -1,5 +1,6 @@
 import cmd
 import os
+import sys
 try:
     from os import system as call
 except ImportError:
@@ -76,7 +77,7 @@ class BasePrompt(cmd.Cmd):
             print(line)
 
     do_hist = do_history
-    do_exit = exit
+    do_exit = sys.exit
 
     def help_exit(self):
         print("Terminates the current IAwk session.")

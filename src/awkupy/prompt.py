@@ -41,10 +41,7 @@ class IAwk(BasePrompt):
 
     def do_show(self, arg):
         """Display equivalent AWK code `show code`/ command `show command`."""
-        if not arg:
-            self.awk.show_code()
-
         if arg == 'command':
-            self.awk.show_command()
-        elif arg == 'code':
-            self.awk.show_code()
+            print(repr(self.awk))
+        else:
+            print(self.awk.code)

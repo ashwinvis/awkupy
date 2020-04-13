@@ -1,23 +1,54 @@
-awkupy
-======
-AWK meets Python: bindings and interactive shell for AWK
---------------------------------------------------------
-[![alpha](https://img.shields.io/badge/awkupy-v0.0.2a0-green.svg)](https://github.com/ashwinvis/awkupy/releases/tag/0.0.2a0)
+awkupy and IAwk
+===============
+*AWK meets Python: API, CLI and magics*
+
+[![PyPI](https://img.shields.io/pypi/v/awkupy)](https://pypi.org/project/awkupy/)
 [![LICENSE](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
 
-No reinventing the AWK wheel, and thus, no compromise in speed (I guess).
+A simple subprocess based Pythonic interface for Awk, which powers a
+command-line REPL and Jupyter magics.
 
 
 Installation
 ------------
+
 ```bash
-pip install https://github.com/ashwinvis/awkupy/archive/0.0.2a0.tar.gz
+pip install awkupy
 ```
 
 Features
 --------
+
 - [x] Python class to call AWK via subprocess - see an [example](doc/examples/coins_histogram.py).
-- [x] IAwk: interactive AWK prompt modelled after IPython:
+- [x] IPython / Jupyter magics: `%awk` and `%%awk`, enabling polyglot
+      programming with Awk. See [example](doc/examples/coins_histogram.ipynb)
+      and the [tutorial](doc/examples/tutorial.ipynb) for more details.
+
+```awk
+In [1]: %load_ext iawk
+
+In [2]: cd doc/examples/
+/home/avmo/src/projects/awkupy/doc/examples
+
+In [3]: %%awk --stdout coins.txt
+   ...: {
+   ...:   country[$4]++
+   ...: }
+   ...:
+   ...: END {
+   ...:   for (i in country) print "Country: " i," count: ", country[i]
+   ...: }
+   ...:
+   ...:
+Country: USA  count:  7
+Country: PRC  count:  1
+Country: Austria-Hungary  count:  1
+Country: Canada  count:  1
+Country: Switzerland  count:  1
+Country: RSA  count:  2
+```
+
+- [x] IAwk: interactive AWK prompt modelled after IPython.
 
 ```awk
 ❯❯❯ iawk                                                                                                                                        (awkupy)
@@ -54,3 +85,9 @@ iawk [9]:    gold     1    1986  USA                 American Eagle
 
 iawk [9]: exit
 ```
+
+References
+----------
+
+- [To awk or not to ...](https://sites.google.com/site/toawkornot/home) -
+  excellent tutorial on Awk
