@@ -4,6 +4,7 @@ awkupy and IAwk
 
 [![PyPI](https://img.shields.io/pypi/v/awkupy)](https://pypi.org/project/awkupy/)
 [![LICENSE](https://img.shields.io/badge/license-GPL-blue.svg)](/LICENSE)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/ashwinvis/awkupy/master?filepath=doc%2Fexamples%2Ftutorial.ipynb)
 
 A simple subprocess based Pythonic interface for Awk, which powers a
 command-line REPL and Jupyter magics.
